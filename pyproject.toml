@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiogram3-bot-template"
+version = "0.1.0"
+description = "Advanced aiogram 3 template with PostgreSQL and FSM"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiogram>=3.13,<4.0",
+    "SQLAlchemy>=2.0,<3.0",
+    "asyncpg>=0.29,<1.0",
+    "pydantic-settings>=2.4,<3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
