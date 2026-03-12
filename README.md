@@ -20,7 +20,11 @@ Advanced Telegram bot template on **aiogram 3** with:
    cp .env.example .env
    ```
 2. Set `BOT_TOKEN` in `.env`.
-3. Run with Docker:
+3. Apply migrations:
+  ```bash
+  docker compose run --rm bot alembic upgrade head
+  ```
+4. Run with Docker:
    ```bash
    docker compose up --build
    ```
@@ -32,11 +36,25 @@ Advanced Telegram bot template on **aiogram 3** with:
    ```bash
    pip install -e .
    ```
-3. Ensure PostgreSQL is available with credentials from `.env`.
-4. Start bot:
+3. Install development tools (optional):
+  ```bash
+  pip install -e .[dev]
+  ```
+4. Ensure PostgreSQL is available with credentials from `.env`.
+5. Apply migrations:
+  ```bash
+  alembic upgrade head
+  ```
+6. Start bot:
    ```bash
    python -m app.main
    ```
+
+## Test
+
+```bash
+pytest -q
+```
 
 ## Bot commands
 - `/start` - welcome and trigger onboarding if user is new
@@ -71,5 +89,5 @@ app/
 ```
 
 ## Notes
-- Tables are created automatically on startup for template convenience.
+- Schema is managed by Alembic migrations.
 - For production, add migrations (Alembic), structured logging, and monitoring.
