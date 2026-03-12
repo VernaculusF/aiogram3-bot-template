@@ -1,6 +1,5 @@
 from types import SimpleNamespace
-
-import pytest
+import unittest
 
 from app.services.user_service import UserService
 
@@ -24,42 +23,40 @@ class FakeUserRepository:
         return user
 
 
-@pytest.mark.asyncio
-async def test_register_user_creates_profile() -> None:
-    repo = FakeUserRepository()
-    service = UserService(repo)  # type: ignore[arg-type]
+class TestUserService(unittest.IsolatedAsyncioTestCase):
+    async def test_register_user_creates_profile(self) -> None:
+        repo = FakeUserRepository()
+        service = UserService(repo)  # type: ignore[arg-type]
 
-    profile = await service.register_user(
-        telegram_id=100,
-        full_name="John Doe",
-        age=30,
-        city="Berlin",
-        about="Backend engineer",
-    )
+        profile = await service.register_user(
+            telegram_id=100,
+            full_name="John Doe",
+            age=30,
+            city="Berlin",
+            about="Backend engineer",
+        )
 
-    assert profile.city == "Berlin"
-    assert profile.full_name == "John Doe"
+        self.assertEqual(profile.city, "Berlin")
+        self.assertEqual(profile.full_name, "John Doe")
 
+    async def test_register_user_returns_existing_profile(self) -> None:
+        repo = FakeUserRepository()
+        service = UserService(repo)  # type: ignore[arg-type]
 
-@pytest.mark.asyncio
-async def test_register_user_returns_existing_profile() -> None:
-    repo = FakeUserRepository()
-    service = UserService(repo)  # type: ignore[arg-type]
+        first = await service.register_user(
+            telegram_id=100,
+            full_name="John Doe",
+            age=30,
+            city="Berlin",
+            about="Backend engineer",
+        )
+        second = await service.register_user(
+            telegram_id=100,
+            full_name="Jane Doe",
+            age=22,
+            city="Paris",
+            about="Product manager",
+        )
 
-    first = await service.register_user(
-        telegram_id=100,
-        full_name="John Doe",
-        age=30,
-        city="Berlin",
-        about="Backend engineer",
-    )
-    second = await service.register_user(
-        telegram_id=100,
-        full_name="Jane Doe",
-        age=22,
-        city="Paris",
-        about="Product manager",
-    )
-
-    assert second is first
-    assert second.full_name == "John Doe"
+        self.assertIs(second, first)
+        self.assertEqual(second.full_name, "John Doe")
