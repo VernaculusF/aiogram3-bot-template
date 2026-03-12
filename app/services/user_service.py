@@ -11,7 +11,13 @@ class UserService:
     async def register_user(self, telegram_id: int, full_name: str, age: int, city: str, about: str):
         existing = await self._repository.get_by_telegram_id(telegram_id)
         if existing:
-            return existing
+            return await self._repository.update(
+                user=existing,
+                full_name=full_name,
+                age=age,
+                city=city,
+                about=about,
+            )
         return await self._repository.create(
             telegram_id=telegram_id,
             full_name=full_name,

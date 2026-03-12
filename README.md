@@ -3,6 +3,7 @@
 Advanced Telegram bot template on **aiogram 3** with:
 - async PostgreSQL via SQLAlchemy
 - finite state machine (FSM) for onboarding flow
+- profile update flow via repeated registration
 - clean layered structure (config, db, services, handlers)
 - Docker Compose for quick local launch
 
@@ -12,6 +13,7 @@ Advanced Telegram bot template on **aiogram 3** with:
 - SQLAlchemy 2 (async)
 - asyncpg
 - PostgreSQL 16
+- Alembic
 
 ## Quick start
 
@@ -20,13 +22,21 @@ Advanced Telegram bot template on **aiogram 3** with:
    cp .env.example .env
    ```
 2. Set `BOT_TOKEN` in `.env`.
-3. Apply migrations:
+3. Start PostgreSQL:
+  ```bash
+  docker compose up -d postgres
+  ```
+4. Apply migrations:
   ```bash
   docker compose run --rm bot alembic upgrade head
   ```
-4. Run with Docker:
+5. Run bot:
    ```bash
-   docker compose up --build
+  docker compose up --build -d bot
+  ```
+6. Check logs:
+  ```bash
+  docker compose logs -f bot
    ```
 
 ## Local run (without Docker)
@@ -58,11 +68,13 @@ pytest -q
 
 ## Bot commands
 - `/start` - welcome and trigger onboarding if user is new
-- `/register` - start onboarding FSM manually
+- `/register` - start onboarding FSM manually (creates or updates profile)
 - `/profile` - show saved profile
 - `/cancel` - cancel current FSM dialog
 
 FSM onboarding flow stores: `full_name -> age -> city -> about`.
+
+If user already exists, `/register` updates existing profile fields.
 
 ## Project structure
 
@@ -90,4 +102,5 @@ app/
 
 ## Notes
 - Schema is managed by Alembic migrations.
-- For production, add migrations (Alembic), structured logging, and monitoring.
+- If `alembic upgrade head` fails with `relation "users" already exists`, use the current migration file from this template and rerun the command.
+- For production, add structured logging, monitoring, and CI checks.

@@ -22,6 +22,13 @@ class FakeUserRepository:
         self.storage[telegram_id] = user
         return user
 
+    async def update(self, user, full_name: str, age: int, city: str, about: str):
+        user.full_name = full_name
+        user.age = age
+        user.city = city
+        user.about = about
+        return user
+
 
 class TestUserService(unittest.IsolatedAsyncioTestCase):
     async def test_register_user_creates_profile(self) -> None:
@@ -39,7 +46,7 @@ class TestUserService(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(profile.city, "Berlin")
         self.assertEqual(profile.full_name, "John Doe")
 
-    async def test_register_user_returns_existing_profile(self) -> None:
+    async def test_register_user_updates_existing_profile(self) -> None:
         repo = FakeUserRepository()
         service = UserService(repo)  # type: ignore[arg-type]
 
@@ -59,4 +66,5 @@ class TestUserService(unittest.IsolatedAsyncioTestCase):
         )
 
         self.assertIs(second, first)
-        self.assertEqual(second.full_name, "John Doe")
+        self.assertEqual(second.full_name, "Jane Doe")
+        self.assertEqual(second.city, "Paris")
