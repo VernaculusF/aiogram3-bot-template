@@ -14,6 +14,7 @@ Advanced Telegram bot template on **aiogram 3** with:
 - asyncpg
 - PostgreSQL 16
 - Alembic
+- APScheduler
 
 ## Quick start
 
@@ -66,11 +67,23 @@ Advanced Telegram bot template on **aiogram 3** with:
 pytest -q
 ```
 
+## Scheduler
+
+Template includes APScheduler-based periodic task.
+By default it sends report to `BOT_ADMINS` with current registered users count.
+
+Environment variables:
+- `SCHEDULER_ENABLED=true|false`
+- `SCHEDULER_REPORT_INTERVAL_MINUTES=60`
+
 ## Bot commands
 - `/start` - welcome and trigger onboarding if user is new
 - `/register` - start onboarding FSM manually (creates or updates profile)
 - `/profile` - show saved profile
 - `/cancel` - cancel current FSM dialog
+- `/admin` - show admin command list
+- `/stats` - admin-only users statistics
+- `/report_now` - admin-only immediate report to all admins
 
 FSM onboarding flow stores: `full_name -> age -> city -> about`.
 

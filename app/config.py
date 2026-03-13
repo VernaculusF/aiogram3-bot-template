@@ -22,7 +22,14 @@ class Settings(BaseSettings):
         if value is None or value == "":
             return []
         if isinstance(value, str):
-            return [int(item.strip()) for item in value.split(",") if item.strip()]
+            parsed: list[int] = []
+            for item in value.split(","):
+                token = item.strip()
+                if not token:
+                    continue
+                if token.isdigit():
+                    parsed.append(int(token))
+            return parsed
         return value
 
     database_host: str = Field(default="localhost", alias="DATABASE_HOST")
@@ -32,6 +39,8 @@ class Settings(BaseSettings):
     database_name: str = Field(alias="DATABASE_NAME")
 
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+    scheduler_enabled: bool = Field(default=True, alias="SCHEDULER_ENABLED")
+    scheduler_report_interval_minutes: int = Field(default=60, alias="SCHEDULER_REPORT_INTERVAL_MINUTES")
 
     @property
     def database_dsn(self) -> str:

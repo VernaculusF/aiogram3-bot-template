@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User
@@ -35,3 +35,8 @@ class UserRepository:
         await self._session.commit()
         await self._session.refresh(user)
         return user
+
+    async def count_users(self) -> int:
+        stmt = select(func.count(User.id))
+        result = await self._session.execute(stmt)
+        return int(result.scalar_one())
