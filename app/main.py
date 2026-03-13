@@ -9,6 +9,7 @@ from app.bot.handlers import setup_handlers
 from app.bot.middlewares.db import DbSessionMiddleware
 from app.config import get_settings
 from app.db.session import build_session_factory
+from app.services.scheduler import BotScheduler
 
 
 async def main() -> None:
@@ -28,8 +29,22 @@ async def main() -> None:
     dp.update.middleware(DbSessionMiddleware(session_factory))
     dp.include_router(setup_handlers())
 
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    scheduler = None
+    if settings.scheduler_enabled:
+        scheduler = BotScheduler(
+            bot=bot,
+            session_factory=session_factory,
+            admin_ids=settings.bot_admins,
+            interval_minutes=settings.scheduler_report_interval_minutes,
+        )
+        scheduler.start()
+
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot)
+    finally:
+        if scheduler is not None:
+            await scheduler.shutdown()
 
 
 if __name__ == "__main__":
